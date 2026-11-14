@@ -67,10 +67,15 @@ export function circuitInputs(task, decision, salt, encoding) {
 
 const WASM = new URL('./circuits/gatekeeper.wasm', import.meta.url).pathname;
 const ZKEY = new URL('./circuits/gatekeeper_final.zkey', import.meta.url).pathname;
-const VK = JSON.parse(
-  await import('node:fs').then((fs) =>
-    fs.readFileSync(new URL('./circuits/gatekeeper_vk.json', import.meta.url), 'utf8'))
-);
+// Lazy + guarded: module import must never die on the VK file (on
+// serverless bundles a top-level read can fail before any handler runs).
+import { readFileSync } from 'node:fs';
+let VK = null;
+function loadVK() {
+  if (VK) return VK;
+  VK = JSON.parse(readFileSync(new URL('./circuits/gatekeeper_vk.json', import.meta.url), 'utf8'));
+  return VK;
+}
 
 export async function prove(inputs) {
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(inputs, WASM, ZKEY);
@@ -78,5 +83,5 @@ export async function prove(inputs) {
 }
 
 export async function verifyProof(proof, publicSignals) {
-  return snarkjs.groth16.verify(VK, publicSignals, proof);
+  return snarkjs.groth16.verify(loadVK(), publicSignals, proof);
 }
