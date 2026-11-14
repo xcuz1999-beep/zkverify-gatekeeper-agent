@@ -1,0 +1,20 @@
+{
+  "type": "agent-games.proof-gatekeeper.v1",
+  "task_id": "gk_sample_001",
+  "mode": "practice",
+  "issued_at": "2026-11-14T15:58:29.505Z",
+  "deadline_at": "2026-11-14T15:59:29.506Z",
+  "input": {
+    "registered_vk": "0x6b79c6012a6d8651f3e13bc4d2a20370280ab490000000000000000000000000",
+    "proof_vk": "0x6b79c6012a6d8651f3e13bc4d2a20370280ab490000000000000000000000000",
+    "minimum": "1000",
+    "public_balance": "1460",
+    "expiry_block": 19842201,
+    "current_block": 19832000,
+    "recipient": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "condition_recipient": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "amount": "500",
+    "max_transfer": "1000",
+    "proof_tx": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  }
+}

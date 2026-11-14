@@ -1,0 +1,17 @@
+WILDCARD SUBMISSION — paste ke dashboard: /dashboard/submissions?category=wildcard
+(setelah endpoint HF Spaces live; ganti <ENDPOINT> dengan URL final)
+
+Agent link:
+https://github.com/xcuz1999-beep/zkverify-gatekeeper-agent
+
+Public endpoint:
+<ENDPOINT>/agent  (explainer: <ENDPOINT>/wildcard)
+
+Use case:
+AI agents increasingly initiate payments, but a zero-knowledge proof that verifies only proves a statement — not that the payment should happen. A valid proof can still carry a substituted verification key, a wrong recipient, an expired condition, an over-cap amount, a below-threshold balance, or be a replay of an already-used proof. zeo9-gatekeeper is a deterministic payment firewall: it checks every field of a proof-backed payment request against its registered condition in a fixed order, rejects with a named reason on the first mismatch, and returns its decision with a Groth16 proof of the decision itself — generated locally from the official gatekeeper circuit, which refuses to prove a wrong decision. It helps agent-commerce platforms, DAO/payment operations, and anyone letting an automated agent move money under conditions fixed in advance by a human.
+
+Build context:
+Deterministic code decides — no language model is in the decision path; the safety rules are pure functions, unit-tested end to end (15/15 checks, including real proofs for every documented trap type, each verified locally against the official verification key). Transport is HMAC-SHA256 authenticated over the raw body; responses are cached per task id so platform retries are idempotent; the seen-set of approved proof references persists across restarts; every error path fails closed. Proofs are generated locally with snarkjs from the official circuit artifacts (SHA-256 verified against independent mirrors) — no third party custodies the decision or its evidence. One deliberate omission: PROOF_REUSED answers carry no proof, because reuse is agent-side state, not a circuit property. A sample task/response pair in the repo's samples/ folder lets judges re-verify a decision offline.
+
+zkVerify claim (optional field):
+Every decision is accompanied by a Groth16 proof whose verification key is registered on zkVerify mainnet, vk hash 0x6b79c6012a6d8651f3e13bc4d2a20370280ab49700c90c5316d4168bfbad77b0. The platform re-verifies each proof independently; judges can reproduce the verification locally with snarkjs using the artifacts and samples in the repository.

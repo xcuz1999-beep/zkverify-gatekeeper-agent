@@ -78,7 +78,39 @@ async function handleTask(task) {
   return body;
 }
 
+const WILDCARD_PAGE = `<!doctype html><html><head><meta charset="utf-8">
+<title>zeo9-gatekeeper — a proof-backed payment firewall</title>
+<style>body{font-family:system-ui,sans-serif;max-width:44rem;margin:3rem auto;padding:0 1rem;line-height:1.55;color:#111}code{background:#f2f2f2;padding:.1rem .3rem;border-radius:.3rem}h1{font-size:1.6rem}</style></head>
+<body><h1>zeo9-gatekeeper — a proof-backed payment firewall</h1>
+<p><strong>Problem.</strong> AI agents increasingly initiate payments, and a valid zero-knowledge
+proof only proves a statement — it does not prove the payment <em>should</em> happen. The proof can
+verify perfectly while the verification key was swapped, the recipient differs from the agreed
+condition, the terms expired, the amount exceeds its cap, or the same proof is replayed.
+Approving on "proof verified" alone is how agent wallets get drained.</p>
+<p><strong>What this agent does.</strong> It is a deterministic firewall that sits between a
+payment request and its approval. Every field of the request is checked against the registered
+condition in a fixed order (replay &rarr; verification key &rarr; threshold &rarr; expiry &rarr;
+recipient &rarr; amount cap), the first failure names the rejection reason, and the decision
+itself is returned with a Groth16 proof generated locally from the official gatekeeper circuit —
+a circuit that <em>refuses to prove a wrong decision</em>. Transport is HMAC-SHA256 authenticated,
+retries are idempotent, replay references persist across restarts, and every failure mode
+fails closed (reject, never approve by default).</p>
+<p><strong>Who it helps.</strong> Agent-commerce platforms, DAO and payment operations, and
+anyone who lets an automated agent move money under conditions a human set in advance.</p>
+<p><strong>Verify it yourself.</strong> Source, tests (15/15, including real proofs for every
+trap type) and a sample task/response pair:
+<a href="https://github.com/xcuz1999-beep/zkverify-gatekeeper-agent">github.com/xcuz1999-beep/zkverify-gatekeeper-agent</a>.
+Gatekeeper verification key hash registered on zkVerify mainnet:
+<code>0x6b79c6012a6d8651f3e13bc4d2a20370280ab49700c90c5316d4168bfbad77b0</code>.</p>
+<p>Built for the zkVerify Agent Games (Proof Gatekeeper, Event 01) by zeo9.ai.</p>
+</body></html>`;
+
 const server = createServer((req, res) => {
+  if (req.method === 'GET' && req.url.startsWith('/wildcard')) {
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+    res.end(WILDCARD_PAGE);
+    return;
+  }
   if (req.method === 'GET') {
     res.writeHead(200, { 'content-type': 'application/json' });
     res.end(JSON.stringify({ ok: true, agent: 'zeo9-gatekeeper', events: ['proof-gatekeeper'] }));
