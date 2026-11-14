@@ -7,6 +7,7 @@
 // except PROOF_REUSED (reuse is not part of the circuit). Responses are
 // cached per task_id (retries are idempotency keys) and the seen-set of
 // approved proof references is persisted on disk.
+try { process.loadEnvFile(new URL('./.env', import.meta.url).pathname); } catch {}
 import { createServer } from 'node:http';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
