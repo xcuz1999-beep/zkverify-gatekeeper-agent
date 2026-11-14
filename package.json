@@ -1,0 +1,3 @@
+{ "name": "zeo9-gatekeeper-agent", "version": "1.0.0", "type": "module",
+  "description": "Proof Gatekeeper agent for zkVerify Agent Games (handle zeo9.ai). Deterministic checks + local Groth16 proofs.", "scripts": { "start": "node server.mjs", "test": "node test.mjs" },
+  "dependencies": { "snarkjs": "^0.7.5", "viem": "^2.21.0" } }
