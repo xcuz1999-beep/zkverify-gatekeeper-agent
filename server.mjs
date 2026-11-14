@@ -105,7 +105,7 @@ Gatekeeper verification key hash registered on zkVerify mainnet:
 <p>Built for the zkVerify Agent Games (Proof Gatekeeper, Event 01) by zeo9.ai.</p>
 </body></html>`;
 
-const server = createServer((req, res) => {
+export function handler(req, res) {
   if (req.method === 'GET' && req.url.startsWith('/wildcard')) {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
     res.end(WILDCARD_PAGE);
@@ -158,6 +158,10 @@ const server = createServer((req, res) => {
     });
     res.end(body);
   });
-});
+}
 
-server.listen(PORT, () => log('zeo9-gatekeeper listening on port', PORT, '| taskId encoding:', ENCODING));
+import { fileURLToPath } from 'node:url';
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  createServer(handler).listen(PORT, () =>
+    log('zeo9-gatekeeper listening on port', PORT, '| taskId encoding:', ENCODING));
+}
