@@ -17,8 +17,16 @@ import { circuitInputs, prove, verifyProof, randomSalt } from './prove.mjs';
 const PORT = process.env.PORT || 8080;
 const SECRET = process.env.AGENT_GAMES_HMAC_SECRET || '';
 const ENCODING = process.env.TASK_ID_ENCODING || 'keccak';
-const DATA_DIR = process.env.DATA_DIR || new URL('./data', import.meta.url).pathname;
-mkdirSync(DATA_DIR, { recursive: true });
+import { tmpdir } from 'node:os';
+let DATA_DIR = process.env.DATA_DIR || new URL('./data', import.meta.url).pathname;
+try {
+  mkdirSync(DATA_DIR, { recursive: true });
+} catch {
+  // Serverless bundles live on a read-only filesystem (e.g. /var/task) —
+  // fall back to tmp so module load never dies here.
+  DATA_DIR = `${tmpdir()}/zkv-gatekeeper-data`;
+  mkdirSync(DATA_DIR, { recursive: true });
+}
 
 if (!SECRET) console.error('WARNING: AGENT_GAMES_HMAC_SECRET is empty — signature checks will fail');
 
@@ -160,8 +168,10 @@ export function handler(req, res) {
   });
 }
 
+export default handler;
+
 import { fileURLToPath } from 'node:url';
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (process.argv[1] === fileURLToPath(import.meta.url) || process.env.VERCEL) {
   createServer(handler).listen(PORT, () =>
     log('zeo9-gatekeeper listening on port', PORT, '| taskId encoding:', ENCODING));
 }
