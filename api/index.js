@@ -5,12 +5,31 @@
 process.env.DATA_DIR = process.env.DATA_DIR || '/tmp/zkv-gatekeeper-data';
 
 let cached = null;
+let loadError = null;
 export default async function vercelHandler(req, res) {
-  if (!cached) {
-    const mod = await import('../server.mjs');
-    cached = mod.handler;
+  if (!cached && !loadError) {
+    try {
+      const mod = await import('../server.mjs');
+      cached = mod.handler;
+    } catch (e) {
+      loadError = e;
+    }
   }
-  return cached(req, res);
+  if (loadError) {
+    res.writeHead(500, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({
+      error: 'module load failed',
+      message: String((loadError && loadError.message) || loadError),
+      stack: String((loadError && loadError.stack) || '').split('\n').slice(0, 8),
+    }));
+    return;
+  }
+  try {
+    return await cached(req, res);
+  } catch (e) {
+    res.writeHead(500, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ error: 'handler failed', message: String((e && e.message) || e) }));
+  }
 }
 
 export const config = { api: { bodyParser: false } };
